@@ -1,0 +1,33 @@
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #0562B9;
+    color: white;
+    padding: 1rem;
+    z-index: 1000;
+    height: 60px;
+    align-items: center;
+    justify-content: space-between;
+  
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 500;
+      letter-spacing: 1rem;
+    }
+  
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+  
+    @media (max-width: 767px) {
+      display: flex;
+      justify-content: space-between;
+    }
+  }

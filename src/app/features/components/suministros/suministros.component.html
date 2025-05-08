@@ -1,0 +1,318 @@
+<div class="suministros-container">
+  <!-- Estado cuando hay suministros -->
+  <div class="suministro-card" *ngIf="hasSuministros">
+    <div class="suministro-content">
+      <div class="suministro-info">
+        <h2 class="suministro-titulo" [attr.data-tooltip]="selectedSuministro.direccion" [class.truncated]="needsTruncation(selectedSuministro.direccion)">
+          {{ needsTruncation(selectedSuministro.direccion) ? truncateText(selectedSuministro.direccion) : selectedSuministro.direccion }}
+        </h2>
+        <div class="suministro-detalles">
+          <span class="suministro-nis">NIS: {{ selectedSuministro.nis }}</span>
+          <span class="suministro-separator">|</span>
+          <span class="suministro-alias">Alias: {{ selectedSuministro.alias }}</span>
+        </div>
+        <div class="suministro-etiquetas">
+          <div class="etiqueta" *ngFor="let etiqueta of selectedSuministro.etiquetas">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            {{ etiqueta }}
+          </div>
+        </div>
+      </div>
+      <div class="suministro-actions">
+        <div class="settings-wrapper">
+          <button #settingsButton class="action-button settings" (click)="toggleSuministroOptions()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+          
+          <!-- Opciones del suministro principal -->
+          <div #optionsMenu class="options-menu" *ngIf="selectedSuministro.showOptions">
+            <h4>Opciones del suministro</h4>
+            <button class="close-options" (click)="toggleSuministroOptions()">×</button>
+            <div class="option-item" (click)="openEditAliasModal()">
+              <div class="option-icon edit-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0066cc" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </div>
+              <span>Editar alias</span>
+            </div>
+            <div class="option-item danger" (click)="openDesvincularModal()">
+              <div class="option-icon unlink-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ba1a1a" stroke-width="2">
+                  <path d="M18.84 12.25l1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"></path>
+                  <path d="M5.17 11.75l-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"></path>
+                  <line x1="8" y1="2" x2="8" y2="5"></line>
+                  <line x1="2" y1="8" x2="5" y2="8"></line>
+                  <line x1="16" y1="19" x2="16" y2="22"></line>
+                  <line x1="19" y1="16" x2="22" y2="16"></line>
+                </svg>
+              </div>
+              <span>Desvincular suministro</span>
+              <p class="option-description">Esta accion eliminara la conexion entre el suministro y tu cuenta.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Boton de flecha para mostrar suministros asociados (solo si hay exactamente 1 suministro adicional) -->
+        <button class="action-button arrow" *ngIf="shouldShowArrowButton" (click)="toggleAssociatedSupplies()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" [class.rotate]="showAssociatedSupplies">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mostrar tarjetas de suministros (cuando hay 1 o 2 suministros adicionales) -->
+    <div class="suministros-cards" *ngIf="shouldShowCards && showAssociatedSupplies">
+      <div class="suministro-card-small" *ngFor="let suministro of suministros" (click)="selectSuministro(suministro)">
+        <div class="suministro-small-header">
+          <span>Suministro asociado</span>
+        </div>
+        <h3 class="suministro-small-title">{{ suministro.direccion }}</h3>
+        <div class="suministro-small-details">
+          <span>Localidad: {{ suministro.localidad }}</span>
+          <span class="suministro-separator">|</span>
+          <span>Alias: {{ suministro.alias }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buscador de suministros (cuando hay mas de 2 suministros adicionales) -->
+    <div class="suministros-search" *ngIf="shouldShowSearcher && showAssociatedSupplies">
+      <div class="search-info">
+        <h3>Encontra mas rapido</h3>
+        <p>Hemos reemplazado las tarjetas por un buscador para facilitar la seleccion cuando hay mas de 2 suministros.</p>
+      </div>
+      <div class="search-container">
+        <input 
+          #searchInput
+          type="text" 
+          placeholder="Buscar suministro asociado" 
+          class="search-input" 
+          [(ngModel)]="searchTerm"
+          (focus)="onSearchFocus()"
+        >
+        <button class="search-button" *ngIf="!searchTerm">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+        <button class="search-button clear" *ngIf="searchTerm" (click)="clearSearch()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        
+        <!-- Resultados de busqueda flotantes -->
+        <div #searchResults class="search-results-dropdown" *ngIf="showSearchResults">
+          <h4 class="results-title">Lista de suministros asociados a tu cuenta</h4>
+          
+          <div class="results-list">
+            <!-- Mostrar solo los resultados limitados -->
+            <div class="result-item" *ngFor="let suministro of limitedSuministros">
+              <div class="result-content" (click)="selectSuministro(suministro)">
+                <div class="result-title" [innerHTML]="highlightText(suministro.direccion)"></div>
+                <div class="result-details">
+                  NIS: {{ suministro.nis }} | Alias: {{ suministro.alias || 'Sin datos' }}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Indicador de resultados adicionales -->
+            <div class="more-results" *ngIf="hasMoreResults">
+              Y {{ additionalResultsCount }} resultado{{ additionalResultsCount !== 1 ? 's' : '' }} mas...
+            </div>
+            
+            <!-- Mensaje si no hay resultados -->
+            <div class="no-results" *ngIf="searchTerm && filteredSuministros.length === 0">
+              No se encontraron suministros que coincidan con "{{ searchTerm }}".
+            </div>
+          </div>
+          
+          <!-- Boton para ver todos los suministros -->
+          <button class="view-all-button">
+            Ver los suministros asociados
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Estado cuando no hay suministros -->
+  <div class="no-suministros-card" *ngIf="!hasSuministros">
+    <div class="no-suministros-content">
+      <h2 class="no-suministros-title">Sin suministros asociados actualmente</h2>
+      <p class="no-suministros-description">Al momento no hay suministros asociados al usuario</p>
+    </div>
+  </div>
+
+  <!-- Boton de asociar suministro (siempre visible) -->
+  <div class="asociar-button">
+    <button class="btn-asociar" (click)="openAsociarModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2">
+        <path d="M12 5v14M5 12h14"></path>
+      </svg>
+      <div class="btn-text">
+        Asociar Suministro
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- Toast para mensajes -->
+<div class="toast-container" *ngIf="toast.show">
+  <div class="toast" [ngClass]="'toast-' + toast.type">
+    <div class="toast-icon">
+      <!-- Icono para error -->
+      <svg *ngIf="toast.type === 'error'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <!-- Icono para éxito -->
+      <svg *ngIf="toast.type === 'success'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M8 12l2 2 6-6"></path>
+      </svg>
+      <!-- Icono para info -->
+      <svg *ngIf="toast.type === 'info'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    </div>
+    <div class="toast-message">{{ toast.message }}</div>
+    <button class="toast-close" (click)="hideToast()">×</button>
+  </div>
+</div>
+
+<!-- Modal para asociar suministro -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>Asociar nuevo suministro</h2>
+      <button class="close-modal" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="submitForm()">
+        <div class="form-group" [class.has-error]="formErrors.asociar.direccion">
+          <label for="direccion">Direccion <span class="required">*</span></label>
+          <input type="text" id="direccion" name="direccion" [(ngModel)]="nuevoSuministro.direccion" required>
+        </div>
+        <div class="form-group" [class.has-error]="formErrors.asociar.localidad">
+          <label for="localidad">Localidad <span class="required">*</span></label>
+          <input type="text" id="localidad" name="localidad" [(ngModel)]="nuevoSuministro.localidad" required>
+        </div>
+        <div class="form-group" [class.has-error]="formErrors.asociar.alias">
+          <label for="alias">Alias <span class="required">*</span></label>
+          <input type="text" id="alias" name="alias" [(ngModel)]="nuevoSuministro.alias" required>
+        </div>
+        <div class="form-group" [class.has-error]="formErrors.asociar.nis">
+          <label for="nis">NIS <span class="required">*</span></label>
+          <input type="text" id="nis" name="nis" [(ngModel)]="nuevoSuministro.nis" required>
+        </div>
+        
+        <!-- Sistema de etiquetas tipo chips -->
+        <div class="form-group">
+          <label>Etiquetas (maximo 3)</label>
+          <div class="tags-container">
+            <!-- Etiquetas existentes -->
+            <div class="tags-list">
+              <div class="tag-chip" *ngFor="let etiqueta of nuevoSuministro.etiquetas; let i = index">
+                {{ etiqueta }}
+                <button type="button" class="tag-remove" (click)="removeTag(i)">×</button>
+              </div>
+            </div>
+            
+            <!-- Input para agregar nuevas etiquetas -->
+            <div class="tag-input-container" *ngIf="nuevoSuministro.etiquetas.length < 3">
+              <input 
+                type="text" 
+                [(ngModel)]="nuevaEtiqueta" 
+                name="nuevaEtiqueta" 
+                placeholder="Agregar etiqueta" 
+                class="tag-input"
+                (keydown)="handleTagKeydown($event)"
+              >
+              <button 
+                type="button" 
+                class="tag-add-button" 
+                [disabled]="!nuevaEtiqueta.trim()" 
+                (click)="addTag()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <span class="help-text">Puede agregar hasta 3 etiquetas para identificar este suministro.</span>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-cancelar" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn-guardar">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para editar alias -->
+<div class="modal-overlay" *ngIf="showEditAliasModal">
+  <div class="modal-container modal-small">
+    <div class="modal-header">
+      <h2>Editar alias</h2>
+      <button class="close-modal" (click)="closeEditAliasModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="submitEditAliasForm()">
+        <div class="form-group">
+          <label for="edit-alias">Alias <span class="required">*</span></label>
+          <input type="text" id="edit-alias" name="edit-alias" [(ngModel)]="aliasEdit" required>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-cancelar" (click)="closeEditAliasModal()">Cancelar</button>
+          <button type="submit" class="btn-guardar">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmacion para desvincular suministro -->
+<div class="modal-overlay" *ngIf="showDesvincularModal">
+  <div class="modal-container modal-small">
+    <div class="modal-header">
+      <h2>Desvincular suministro</h2>
+      <button class="close-modal" (click)="closeDesvincularModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="desvincular-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#ba1a1a" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="6" x2="12" y2="12"></line>
+          <line x1="12" y1="15" x2="12" y2="17"></line>
+        </svg>
+      </div>
+      <p class="confirmation-message">¿Estas seguro de que quieres desvincular este suministro?</p>
+      <p class="warning-message">Esta accion eliminara la conexion entre el suministro y tu cuenta. No podras acceder a la informacion o gestionar este suministro desde tu cuenta después de desvincularlo.</p>
+      <div class="form-actions">
+        <button type="button" class="btn-cancelar" (click)="closeDesvincularModal()">Cancelar</button>
+        <button type="button" class="btn-desvincular" (click)="desvincularSuministro()">Desvincular</button>
+      </div>
+    </div>
+  </div>
+</div>
